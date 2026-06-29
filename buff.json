@@ -26,11 +26,11 @@
     }
   },
   "buff": [
-    { "e": "어둠", "stat": "hp", "percent": 20 },
-    { "t": "공격형", "stat": "atk", "percent": 20 }
+    { "e": "빛", "stat": "hp", "percent": 20 },
+    { "t": "체공형", "stat": "def", "percent": 20 }
   ],
   "nerf": [
-    { "e": "땅", "stat": "def", "percent": 20 },
-    { "t": "체공형", "stat": "atk", "percent": 20 }
+    { "e": "여명", "stat": "def", "percent": 20 },
+    { "t": "공격형", "stat": "atk", "percent": 20 }
   ]
 }
