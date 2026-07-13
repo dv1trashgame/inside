@@ -26,11 +26,11 @@
     }
   },
   "buff": [
-    { "e": "빛", "stat": "def", "percent": 20 },
-    { "t": "체방형", "stat": "atk", "percent": 20 }
+    { "e": "빛", "stat": "hp", "percent": 20 },
+    { "t": "공격형", "stat": "def", "percent": 20 }
   ],
   "nerf": [
-    { "e": "악몽", "stat": "hp", "percent": 20 },
-    { "t": "체력형", "stat": "def", "percent": 20 }
+    { "e": "불", "stat": "atk", "percent": 20 },
+    { "t": "체공형", "stat": "atk", "percent": 20 }
   ]
 }
