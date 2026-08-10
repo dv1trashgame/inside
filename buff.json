@@ -26,11 +26,11 @@
     }
   },
   "buff": [
-    { "e": "바람", "stat": "def", "percent": 20 },
-    { "t": "체방형", "stat": "def", "percent": 20 }
+    { "e": "땅", "stat": "atk", "percent": 20 },
+    { "t": "체력형", "stat": "atk", "percent": 20 }
   ],
   "nerf": [
-    { "e": "황혼", "stat": "def", "percent": 20 },
-    { "t": "체력형", "stat": "def", "percent": 20 }
+    { "e": "여명", "stat": "hp", "percent": 20 },
+    { "t": "공격형", "stat": "hp", "percent": 20 }
   ]
 }
