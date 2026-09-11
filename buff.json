@@ -33,5 +33,4 @@
     { "e": "바람", "stat": "hp", "percent": 20 },
     { "t": "체공형", "stat": "def", "percent": 20 }
   ]
-  
 }
