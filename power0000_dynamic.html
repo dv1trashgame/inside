@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light only">
+    <meta name="supported-color-schemes" content="light">
+    <title>길전세팅 전투력 측정기</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <style>
+        :root {
+            --bg: #f5f5f5; --bg2: #ffffff; --bg3: #ebebeb;
+            --border: #d5d5d5; --border2: #cccccc; --border3: #e0e0e0;
+            --text: #333333; --text2: #555555; --text3: #666666; --text4: #999999;
+            --accent: #3b4890; --accent-bg: rgba(59, 72, 144, 0.12); --accent-border: rgba(59, 72, 144, 0.30);
+            
+            --sf: var(--bg2); --sf2: var(--bg3); --bd: var(--border);
+            --gold: var(--accent); --gold2: #4a5a9f;
+            --dim: var(--text3); --dimmer: var(--text4);
+            --red: #f87171; --green: #4ade80; --blue: #60a5fa;
+            --hpc: #fbbf24; --atc: #f87171; --dfc: #60a5fa;
+            color-scheme: light !important;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        body { font-family: 'Nanum Gothic', -apple-system, sans-serif; margin: 0; padding: 0; background-color: var(--bg); color: var(--text); font-size: 14px; }
+        .page-wrap { max-width: 1000px; margin: 0 auto; padding: 30px 20px; }
+
+        .hd { display: flex; align-items: center; gap: 14px; padding: 12px 20px; background: var(--sf); border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 100; }
+        .hd-icon { width: 32px; height: 32px; flex-shrink: 0; border-radius: 4px; background-color: var(--border3); overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        .hd-icon img { width: 100%; height: 100%; object-fit: cover; }
+        .hd-t { font-size: 15px; font-weight: 800; color: var(--gold); }
+        .hd-s { font-size: 11px; color: var(--dim); margin-top: 2px; }
+        .hd-spacer { flex: 1; }
+        h2 { color: var(--gold); text-align: center; font-weight: 800; margin-bottom: 30px; letter-spacing: -0.5px; position: relative; }
+        
+        .upload-section, .result-section { background: var(--sf); padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid var(--bd); }
+        
+        #imagePreview { width: 100%; height: auto; margin-top: 15px; border-radius: 8px; display: none; border: 1px solid var(--bd); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        #processedPreview { max-width: 100%; max-height: 300px; margin-top: 15px; border-radius: 8px; display: none; }
+        
+        button { background: linear-gradient(135deg, var(--gold2), var(--gold)); color: white; padding: 16px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 20px; font-weight: 800; width: 100%; box-shadow: 0 4px 10px rgba(59, 72, 144, 0.2); transition: all 0.2s ease; }
+        button:hover { transform: translateY(-2px); opacity: 0.9; }
+        button:disabled { background: var(--sf2); box-shadow: none; transform: none; cursor: not-allowed; color: var(--dim); border: 1px solid var(--bd); }
+        #status { margin-top: 20px; color: var(--dim); font-weight: bold; text-align: center; font-size: 15px; }
+        
+        .groups-wrapper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; align-items: stretch; }
+        .group { background: var(--sf2); padding: 20px; border-radius: 8px; border: 1px solid var(--bd); border-left-width: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+        .group-1 { border-left-color: #ff4757; } 
+        .group-2 { border-left-color: #ffa502; } 
+        .group-3 { border-left-color: #2ed573; } 
+        
+        .group-header { display: flex; flex-direction: column; align-items: flex-start; border-bottom: 1px solid var(--bd); padding-bottom: 12px; margin-bottom: 15px; gap: 8px; }
+        .dragon-title { font-size: 18px; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .dragon-type { font-size: 12px; color: var(--dim); font-weight: normal; }
+        .dragon-icon { width: 24px; height: 24px; vertical-align: middle; border-radius: 4px; object-fit: cover; }
+        
+        .badges-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; align-items: flex-start; }
+        .eval-badge { background-color: var(--accent-bg); color: var(--gold); padding: 5px 10px; border-radius: 4px; font-size: 13px; font-weight: bold; border: 1px solid var(--accent-border); }
+        .badge-success { background-color: rgba(74, 222, 128, 0.15); color: #16a34a; padding: 5px 10px; border-radius: 4px; font-size: 13px; font-weight: bold; border: 1px solid var(--green); }
+        .grade-badge { background-color: rgba(251, 191, 36, 0.15); color: #d97706; padding: 5px 10px; border-radius: 4px; font-size: 13px; font-weight: bold; border: 1px solid var(--hpc); }
+        
+        .buff-info { background-color: var(--sf2); color: var(--dim); padding: 12px 16px; border-radius: 8px; font-size: 15px; margin-bottom: 20px; border: 1px solid var(--bd); display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        
+        .stat-container { display: flex; gap: 8px; justify-content: space-between; margin-bottom: 15px; align-items: stretch; }
+        .stat-box { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 10px 4px; border-radius: 6px; text-align: center; font-size: 12px; font-weight: bold; line-height: 1.2; }
+        .stat-hp { background-color: rgba(251, 191, 36, 0.15); border: 1px solid #fbbf24; color: #d97706; }
+        .stat-atk { background-color: rgba(248, 113, 113, 0.15); border: 1px solid #f87171; color: #dc2626; }
+        .stat-def { background-color: rgba(96, 165, 250, 0.15); border: 1px solid #60a5fa; color: #2563eb; }
+        .stat-box b { font-size: 18px; display: block; margin-top: 4px; color: var(--text); letter-spacing: 0.5px; }
+        
+        .stat-buff-plus { color: #16a34a; font-weight: bold; font-size: 12px; margin-top: 4px; min-height: 14px; }
+        .stat-buff-minus { color: #dc2626; font-weight: bold; font-size: 12px; margin-top: 4px; min-height: 14px; }
+
+        .bival-box { text-align: center; background: var(--sf); padding: 12px; border-radius: 6px; border: 1px dashed var(--bd); margin-top: auto; }
+        .bival-label { font-size: 12px; color: var(--dim); margin-bottom: 4px; display: block; }
+        .bival-box span.bival-score { color: var(--gold); font-size: 20px; font-weight: 800; }
+        
+        .total-bival-box { background: linear-gradient(135deg, var(--gold2), var(--gold)); color: white; padding: 25px; border-radius: 12px; text-align: center; margin-top: 15px; font-size: 22px; font-weight: 900; box-shadow: 0 10px 25px rgba(59, 72, 144, 0.3); }
+        .total-bival-box span { font-size: 32px; display: block; margin-top: 8px; color: #ffffff; }
+
+        .submit-section { margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 8px; display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; border: 1px solid rgba(255,255,255,0.3); }
+        .submit-section input { padding: 10px 15px; border-radius: 6px; border: none; background: var(--bg); color: var(--text); font-size: 15px; font-family: inherit; width: 200px; font-weight: bold;}
+        .submit-section button { margin-top: 0; width: auto; padding: 10px 20px; background: var(--bg); color: var(--gold); font-size: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .submit-section button:hover { background: var(--sf2); }
+
+        .leaderboard-btn { position: static; width: auto; flex-shrink: 0; margin: 0; padding: 7px 12px; font-size: 12px; font-weight: 700; line-height: 1.2; border-radius: 6px; background: var(--sf); color: var(--gold); border: 1px solid var(--gold); box-shadow: none; white-space: nowrap; }
+        .leaderboard-btn:hover { background: var(--accent-bg); transform: none; }
+        
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); backdrop-filter: blur(4px); }
+        .modal-content { background-color: var(--bg); margin: 10% auto; padding: 25px; border: 1px solid var(--bd); border-radius: 12px; width: 95%; max-width: 700px; max-height: 80vh; overflow-y: auto; color: var(--text); position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .close-btn { color: var(--dim); float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 1; margin-top: -5px; }
+        .close-btn:hover { color: var(--text); }
+        
+        .rank-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; table-layout: fixed; }
+        .rank-table th, .rank-table td { padding: 12px 4px; border-bottom: 1px solid var(--border3); text-align: center; vertical-align: middle; }
+        .rank-table th { color: var(--dim); font-weight: bold; border-bottom: 2px solid var(--bd); }
+        
+        .rank-td-cell { font-weight: bold; font-size: 15px; color: var(--text); }
+        .score-text { color: var(--gold); font-weight: 800; font-size: 15px; letter-spacing: -0.5px; }
+        .nickname-text { font-weight: bold; font-size: 15px; word-break: break-all; color: var(--text); }
+        
+        .leaderboard-medal-icon { width: 24px; height: 24px; vertical-align: middle; object-fit: contain; }
+        .leaderboard-dragon-icon { width: 22px; height: 22px; vertical-align: middle; border-radius: 4px; margin: 0 2px; object-fit: cover; }
+        .nickname-container { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+        
+        .buff-badge { padding: 4px 8px; border-radius: 6px; font-size: 13px; font-weight: 900; display: inline-block; white-space: nowrap; }
+        .buff-6 { background-color: #ef4444; color: white; } 
+        .buff-5 { background-color: #f97316; color: white; } 
+        .buff-4 { background-color: #facc15; color: #333; } 
+        .buff-3 { background-color: #22c55e; color: white; } 
+        .buff-2 { background-color: #3b82f6; color: white; } 
+        .buff-1 { background-color: #a855f7; color: white; } 
+        .buff-0 { background-color: var(--sf2); color: var(--dim); border: 1px solid var(--bd); } 
+
+        .detail-toggle-btn { background: var(--sf2); color: var(--dim); border: 1px solid var(--bd); padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; margin-top: 0; white-space: nowrap; }
+        .detail-toggle-btn:hover { background: var(--border3); }
+        .details-row td { background: var(--sf); padding: 15px 10px; border-bottom: 2px solid var(--bd); }
+        .details-container { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .detail-card { background: var(--sf2); border: 1px solid var(--border3); border-radius: 8px; padding: 10px; flex: 1; min-width: 140px; font-size: 12px; text-align: center; }
+        .detail-card span.d-name { display: block; color: var(--dim); margin-bottom: 6px; font-size: 12px; font-weight: bold; }
+        .detail-card b { color: var(--text); font-size: 13px; }
+        .detail-bival { display: block; margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--bd); color: var(--gold); font-weight: 800; font-size: 13px; }
+
+        .pre-select-area { display: none; margin-top: 25px; padding: 25px; background-color: var(--sf2); border-radius: 12px; border: 1px solid var(--bd); }
+        .pre-select-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px; } 
+        .pre-select-item { display: flex; flex-direction: column; background: var(--sf); padding: 15px; border-radius: 8px; border: 1px solid var(--border3); }
+        .pre-select-item label { font-weight: 800; margin-bottom: 12px; color: var(--text); font-size: 15px; text-align: center; border-bottom: 1px solid var(--border3); padding-bottom: 8px; }
+        .input-row { display: flex; flex-direction: column; gap: 10px; } 
+        .autocomplete-wrapper { position: relative; width: 100%; }
+        .dragon-search, .grade-select { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid var(--bd); background-color: var(--bg); font-family: inherit; font-size: 14px; font-weight: bold; box-sizing: border-box; color: var(--text); }
+        .dragon-search:focus, .grade-select:focus { outline: none; border-color: var(--gold); }
+        .autocomplete-list { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--bg); border: 1px solid var(--bd); z-index: 1000; max-height: 200px; overflow-y: auto; border-radius: 6px; display: none; }
+        .autocomplete-item { padding: 12px 14px; cursor: pointer; border-bottom: 1px solid var(--border3); font-size: 14px; color: var(--text); }
+        .autocomplete-item:hover { background-color: var(--sf2); font-weight: bold; color: var(--gold); }
+
+        .toggle-debug-btn { background: transparent; border: 1px solid var(--bd); color: var(--dim); padding: 6px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; margin-top: 0; width: auto; font-weight: normal; transition: all 0.2s; }
+        .toggle-debug-btn:hover { background: var(--border3); color: var(--text); }
+        
+        .raw-text { background: var(--bg) !important; color: var(--dim) !important; border: 1px solid var(--bd) !important; }
+
+        @media (max-width: 800px) {
+            .page-wrap { padding: 10px 5px; }
+            h2 { font-size: 20px; padding-top: 0; margin-bottom: 20px; }
+
+            .leaderboard-btn { font-size: 11px; padding: 6px 9px; transform: none; }
+            .upload-section, .result-section { padding: 15px 5px; border-radius: 8px; }
+            
+            .pre-select-container, .groups-wrapper { gap: 4px; }
+            .pre-select-item { padding: 8px 4px; }
+            .pre-select-item label { font-size: 11px; padding-bottom: 6px; margin-bottom: 8px; }
+            .dragon-search, .grade-select { padding: 8px 4px; font-size: 11px; }
+            .input-row { gap: 6px; }
+
+            .group { padding: 12px 6px; border-left-width: 4px; border-radius: 6px; }
+            .group-header { padding-bottom: 8px; margin-bottom: 12px; gap: 4px; }
+            .dragon-title { font-size: 11px; gap: 2px; }
+            .dragon-type { font-size: 9px; display: block; width: 100%; }
+            .dragon-icon { width: 16px; height: 16px; }
+            
+            .badges-container { gap: 4px; margin-bottom: 12px; }
+            .eval-badge, .badge-success, .grade-badge { font-size: 8px; padding: 4px 5px; border-radius: 3px; }
+            
+            .stat-container { gap: 3px; margin-bottom: 12px; align-items: stretch; } 
+            .stat-box { padding: 6px 2px; font-size: 8px; border-radius: 4px; }
+            .stat-box b { font-size: 11px; margin-top: 3px; }
+            .stat-buff-plus, .stat-buff-minus { font-size: 8px; margin-top: 2px; min-height: 10px; }
+            
+            .group-header img:not(.dragon-icon) { height: 16px !important; }
+
+            .bival-box { padding: 8px 3px; border-radius: 4px; }
+            .bival-label { font-size: 9px; margin-bottom: 2px; }
+            .bival-box span.bival-score { font-size: 12px; }
+            
+            .total-bival-box { padding: 12px 5px; font-size: 16px; margin-top: 15px; border-radius: 6px; }
+            .total-bival-box span { font-size: 22px; margin-top: 4px; }
+
+            .modal-content { padding: 15px 4px; width: 95%; max-width: 100vw; box-sizing: border-box; overflow-x: hidden; }
+            .rank-table { word-break: break-all; }
+            .rank-table th, .rank-table td { padding: 6px 1px; font-size: 10px; }
+            
+            .rank-td-cell { font-size: 11px; }
+            .score-text { font-size: 9.5px; word-break: break-all; } 
+            .nickname-text { font-size: 10px; }
+            
+            .nickname-container { flex-direction: column; gap: 2px; }
+            .leaderboard-dragon-icon { width: 12px; height: 12px; margin: 0 1px; }
+            .leaderboard-medal-icon { width: 16px; height: 16px; }
+            
+            .buff-badge { font-size: 9px; padding: 2px 4px; } 
+            .detail-toggle-btn { padding: 5px 2px; font-size: 9px; width: 95%; }
+            
+            .submit-section input, .submit-section button { width: 100%; margin-bottom: 5px; }
+            
+            .details-container { flex-direction: column; gap: 6px; width: 100%; box-sizing: border-box; }
+            .detail-card { min-width: 0 !important; width: 100%; margin: 0; box-sizing: border-box; overflow: hidden; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hd">
+  <div class="hd-icon">
+    <img src="images/logo.png" alt="로고">
+  </div>
+  <div>
+    <div class="hd-t">길전세팅 전투력 측정기</div>
+    <div class="hd-s">덱설정 스크린샷 업로드</div>
+  </div>
+  <div class="hd-spacer"></div>
+  <button id="openLeaderboardBtn" class="leaderboard-btn">🏆 주간 랭킹</button>
+</div>
+
+<div class="page-wrap">
+
+    <div id="sysNotice" class="buff-info">
+        데이터베이스 파일들을 불러오는 중입니다... ⏳
+    </div>
+
+    <div id="leaderboardModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeModalBtn">&times;</span>
+            <h3 style="margin-top: 0; color: var(--gold); text-align: center;">🏆 주간 랭킹 (순위표)</h3>
+            <p style="text-align: center; font-size: 13px; color: var(--dim); margin-bottom: 15px;">서버에서 데이터를 불러오는 중입니다...</p>
+            <div style="overflow-x: auto;">
+                <table class="rank-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 13%;">순위</th>
+                            <th style="width: 33%;">닉네임 & 덱</th>
+                            <th style="width: 14%;">버프</th>
+                            <th style="width: 26%;">총합 비밸</th>
+                            <th style="width: 14%;">상세</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="upload-section">
+        <p style="margin-top:0; font-weight:800; color: var(--text); font-size:15px; margin-bottom:12px;">1. 덱 설정 화면 스크린샷 업로드</p>
+        <input type="file" id="imageInput" accept="image/*">
+        
+        <div style="display:flex; gap: 15px; flex-wrap: wrap;">
+            <div style="width: 100%;">
+                <img id="imagePreview" alt="원본 이미지">
+            </div>
+        </div>
+        
+        <div id="preSelectArea" class="pre-select-area">
+            <p style="margin-top:0; font-weight:800; color: var(--text); font-size:15px; margin-bottom:5px;">2. 각 그룹의 드래곤과 등급 지정</p>
+            
+            <div class="pre-select-container">
+                <div class="pre-select-item">
+                    <label>그룹 1 (왼쪽)</label>
+                    <div class="input-row">
+                        <div class="autocomplete-wrapper">
+                            <input type="text" class="dragon-search" id="preInput1" autocomplete="off" placeholder="드래곤 이름 검색">
+                            <div class="autocomplete-list" id="autoList1"></div>
+                        </div>
+                        <select class="grade-select" id="preGrade1">
+                            <option value="7.0">7.0</option>
+                            <option value="8.0">8.0</option>
+                            <option value="9.0" selected>9.0</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="pre-select-item">
+                    <label>그룹 2 (가운데)</label>
+                    <div class="input-row">
+                        <div class="autocomplete-wrapper">
+                            <input type="text" class="dragon-search" id="preInput2" autocomplete="off" placeholder="드래곤 이름 검색">
+                            <div class="autocomplete-list" id="autoList2"></div>
+                        </div>
+                        <select class="grade-select" id="preGrade2">
+                            <option value="7.0">7.0</option>
+                            <option value="8.0">8.0</option>
+                            <option value="9.0" selected>9.0</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="pre-select-item">
+                    <label>그룹 3 (오른쪽)</label>
+                    <div class="input-row">
+                        <div class="autocomplete-wrapper">
+                            <input type="text" class="dragon-search" id="preInput3" autocomplete="off" placeholder="드래곤 이름 검색">
+                            <div class="autocomplete-list" id="autoList3"></div>
+                        </div>
+                        <select class="grade-select" id="preGrade3">
+                            <option value="7.0">7.0</option>
+                            <option value="8.0">8.0</option>
+                            <option value="9.0" selected>9.0</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="extractBtnContainer" style="display: none; text-align: center; margin-top: 30px;">
+            <img id="extractBtn" src="images/chu.png" alt="계산 시작" style="width: 70px; height: 70px; cursor: pointer; object-fit: cover; transition: opacity 0.2s ease;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+        </div>
+        <div id="status"></div>
+    </div>
+
+    <div class="result-section" id="resultSection" style="display: none;">
+        <h3 style="margin-top:0; color:var(--text); font-weight:800; font-size:18px; border-bottom:1px solid var(--bd); padding-bottom:12px; margin-bottom:20px;">이번 주 비밸 계산 결과</h3>
+        <div id="parsedResults"></div>
+        <h4 style="margin-top: 35px; font-size: 13px; color: var(--dim); margin-bottom:5px;">전체 인식된 텍스트 (로그 확인용)</h4>
+        <textarea id="rawText" class="raw-text" style="width: 100%; height: 60px; background: #1e1e1e; color: #cbd5e1; border: 1px solid #444; border-radius: 6px; padding: 10px;" readonly></textarea>
+    </div>
+
+    <script>
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzcC8qd7_MQrkipdMO-jAwsKSYzaphxUgbOeTcecK3ENdg1ooLr5pa76VHX9KmdI0Gdtw/exec";
+
+        let dragonDB = {};
+        let dragonList = [];
+        let weeklyData = { base_stats: {}, buff: [], nerf: [] };
+        
+        let currentCalculatedBival = 0; 
+        let currentTotalBuffCount = 0;
+        let currentTotalNerfCount = 0; 
+        
+        let currentG1 = {}, currentG2 = {}, currentG3 = {}; 
+
+        const modal = document.getElementById("leaderboardModal");
+        const btn = document.getElementById("openLeaderboardBtn");
+        const span = document.getElementById("closeModalBtn");
+
+        btn.onclick = function() { modal.style.display = "block"; loadLeaderboard(); }
+        span.onclick = function() { modal.style.display = "none"; }
+        window.onclick = function(event) { if (event.target == modal) { modal.style.display = "none"; } }
+
+        function toggleDetails(btnElement) {
+            const detailRow = btnElement.closest('tr').nextElementSibling;
+            if (detailRow.style.display === "none" || detailRow.style.display === "") {
+                detailRow.style.display = "table-row";
+                btnElement.innerText = "닫기 ▲";
+            } else {
+                detailRow.style.display = "none";
+                btnElement.innerText = "상세 ▼";
+            }
+        }
+
+        async function loadLeaderboard() {
+            const tbody = document.getElementById('leaderboardBody');
+            tbody.innerHTML = `<tr><td colspan="5" style="color:var(--dim);">데이터를 불러오는 중입니다... ⏳</td></tr>`;
+            try {
+                const response = await fetch(GAS_URL);
+                const data = await response.json();
+                
+                tbody.innerHTML = '';
+                if(data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="color:var(--dim);">아직 등록된 랭킹이 없습니다.</td></tr>`;
+                    return;
+                }
+
+                data.forEach((row, index) => {
+                    let medalHtml = `<span class="rank-td-cell">${index + 1}위</span>`;
+                    if(index === 0) medalHtml = `<img src="./images/medal_1.png" class="leaderboard-medal-icon" alt="1위" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;" class="rank-td-cell">1위</span>`;
+                    if(index === 1) medalHtml = `<img src="./images/medal_2.png" class="leaderboard-medal-icon" alt="2위" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;" class="rank-td-cell">2위</span>`;
+                    if(index === 2) medalHtml = `<img src="./images/medal_3.png" class="leaderboard-medal-icon" alt="3위" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;" class="rank-td-cell">3위</span>`;
+                    let iconsHtml = '';
+                    const dNames = [row.g1?.name, row.g2?.name, row.g3?.name];
+                    dNames.forEach(dName => {
+                        if(dName && !dName.startsWith("그룹 ")) {
+                            iconsHtml += `<img src="./images/icons/${dName}.png" class="leaderboard-dragon-icon" onerror="this.style.display='none'">`;
+                        }
+                    });
+                    
+                    const buffCount = row.totalBuffCount || 0;
+                    const nerfCount = row.totalNerfCount || 0;
+
+                    let buffClass = `buff-${buffCount}`;
+                    if (buffCount > 6) buffClass = "buff-6"; 
+                    if (buffCount === 0 && nerfCount > 0) buffClass = "buff-0"; 
+
+                    let buffText = "";
+                    if (buffCount > 0 && nerfCount > 0) {
+                        buffText = `${buffCount}-${nerfCount}버프`;
+                    } else if (buffCount === 0 && nerfCount > 0) {
+                        buffText = `${nerfCount}너프`;
+                    } else {
+                        buffText = `${buffCount}버프`;
+                    }
+
+                    const buffBadge = `<span class="buff-badge ${buffClass}">${buffText}</span>`;
+                    const bivalText = `<span class="score-text">${Number(row.score).toLocaleString()}</span>`;
+                    
+                    const calcBival = (g) => {
+                        if(!g || !g.base_hp) return 0;
+                        return (Number(g.base_hp) + Number(g.buff_hp)) * (Number(g.base_atk) + Number(g.buff_atk)) * (Number(g.base_def) + Number(g.buff_def));
+                    };
+                    const g1Bival = calcBival(row.g1);
+                    const g2Bival = calcBival(row.g2);
+                    const g3Bival = calcBival(row.g3);
+
+                    const calcEval = (g) => {
+                        if(!g || !g.base_hp) return 0;
+                        return Number(g.base_hp) + (Number(g.base_atk) + Number(g.base_def)) * 4;
+                    };
+                    const g1Eval = calcEval(row.g1);
+                    const g2Eval = calcEval(row.g2);
+                    const g3Eval = calcEval(row.g3);
+                    
+                    const totalEval = g1Eval + g2Eval + g3Eval;
+
+                    const renderDragonName = (name) => {
+                        if (!name || name === '-') return `🐲 -`;
+                        return `<img src="./images/icons/${name}.png" style="width:16px; height:16px; border-radius:3px; vertical-align:middle; margin-right:4px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;">🐲</span>${name}`;
+                    };
+
+                    const formatDetailStat = (icon, base, buff) => {
+                        let buffHtml = '';
+                        if (buff > 0) buffHtml = `<span style="color:#16a34a; font-size:11px; font-weight:bold;">(+${buff})</span>`;
+                        else if (buff < 0) buffHtml = `<span style="color:#dc2626; font-size:11px; font-weight:bold;">(${buff})</span>`;
+                        else buffHtml = `<span style="visibility:hidden; font-size:11px;">(+0)</span>`;
+                        
+                        return `
+                        <div style="display:flex; flex-direction:column; align-items:center; line-height:1.3;">
+                            <span style="font-size:12px; color:var(--text);">${icon}</span>
+                            <b style="font-size:14px; color:var(--text);">${base || 0}</b>
+                            ${buffHtml}
+                        </div>`;
+                    };
+
+                    tbody.innerHTML += `
+                        <tr class="main-row">
+                            <td>${medalHtml}</td>
+                            <td>
+                                <div class="nickname-container">
+                                    <span class="nickname-text">${row.nickname}</span>
+                                    <div>${iconsHtml}</div>
+                                </div>
+                            </td>
+                            <td>${buffBadge}</td>
+                            <td>${bivalText}</td>
+                            <td><button class="detail-toggle-btn" onclick="toggleDetails(this)">상세 ▼</button></td>
+                        </tr>
+                        <tr class="details-row" style="display:none;">
+                            <td colspan="5">
+                                <div class="details-container">
+                                    <div class="detail-card">
+                                        <span class="d-name">${renderDragonName(row.g1?.name)}</span>
+                                        <div style="display:flex; justify-content:space-around; margin:8px 0; padding-bottom:6px; border-bottom: 1px dashed var(--bd);">
+                                            ${formatDetailStat('HP', row.g1?.base_hp, row.g1?.buff_hp)}
+                                            ${formatDetailStat('ATK', row.g1?.base_atk, row.g1?.buff_atk)}
+                                            ${formatDetailStat('DEF', row.g1?.base_def, row.g1?.buff_def)}
+                                        </div>
+                                        <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 5px 0;">
+                                            <span style="font-size:12px; color:var(--dim); font-weight:bold;">Eval: ${g1Eval.toLocaleString()}</span>
+                                            <span style="font-size:13px; color:var(--gold); font-weight:bold;">📊 ${g1Bival.toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                    <div class="detail-card">
+                                        <span class="d-name">${renderDragonName(row.g2?.name)}</span>
+                                        <div style="display:flex; justify-content:space-around; margin:8px 0; padding-bottom:6px; border-bottom: 1px dashed var(--bd);">
+                                            ${formatDetailStat('HP', row.g2?.base_hp, row.g2?.buff_hp)}
+                                            ${formatDetailStat('ATK', row.g2?.base_atk, row.g2?.buff_atk)}
+                                            ${formatDetailStat('DEF', row.g2?.base_def, row.g2?.buff_def)}
+                                        </div>
+                                        <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 5px 0;">
+                                            <span style="font-size:12px; color:var(--dim); font-weight:bold;">Eval: ${g2Eval.toLocaleString()}</span>
+                                            <span style="font-size:13px; color:var(--gold); font-weight:bold;">📊 ${g2Bival.toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                    <div class="detail-card">
+                                        <span class="d-name">${renderDragonName(row.g3?.name)}</span>
+                                        <div style="display:flex; justify-content:space-around; margin:8px 0; padding-bottom:6px; border-bottom: 1px dashed var(--bd);">
+                                            ${formatDetailStat('HP', row.g3?.base_hp, row.g3?.buff_hp)}
+                                            ${formatDetailStat('ATK', row.g3?.base_atk, row.g3?.buff_atk)}
+                                            ${formatDetailStat('DEF', row.g3?.base_def, row.g3?.buff_def)}
+                                        </div>
+                                        <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 5px 0;">
+                                            <span style="font-size:12px; color:var(--dim); font-weight:bold;">Eval: ${g3Eval.toLocaleString()}</span>
+                                            <span style="font-size:13px; color:var(--gold); font-weight:bold;">📊 ${g3Bival.toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 12px; padding: 10px; background: var(--sf2); border: 1px solid var(--bd); border-radius: 8px; text-align: center;">
+                                    <span style="color: var(--text); font-size: 13px; font-weight: bold;">Eval 총합:</span>
+                                    <span style="color: var(--gold); font-size: 16px; font-weight: 900; margin-left: 5px;">${totalEval.toLocaleString()}</span>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="5" style="color:#dc2626;">순위표를 불러오는 데 실패했습니다.</td></tr>`;
+            }
+        }
+
+        async function submitScoreToDB() {
+            const nickname = document.getElementById("nicknameInput").value.trim();
+            if(!nickname) { alert("닉네임을 입력해주세요!"); return; }
+            if(nickname.length > 10) { alert("닉네임은 10자 이내로 입력해주세요!"); return; }
+            
+            const submitBtn = document.getElementById("submitScoreBtn");
+            submitBtn.innerText = "등록 중... ⏳";
+            submitBtn.disabled = true;
+
+            try {
+                await fetch(GAS_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ 
+                        nickname: nickname, 
+                        score: currentCalculatedBival,
+                        totalBuffCount: currentTotalBuffCount,
+                        totalNerfCount: currentTotalNerfCount, 
+                        g1: currentG1,
+                        g2: currentG2,
+                        g3: currentG3
+                    })
+                });
+                alert(`${nickname} 비밸 주랭 등록 완료`);
+                submitBtn.innerText = "등록 완료 ✅";
+                modal.style.display = "block";
+                loadLeaderboard();
+            } catch (error) {
+                alert("등록에 실패했습니다. 다시 시도해주세요.");
+                submitBtn.innerText = "주간 랭킹에 기록 등록하기";
+                submitBtn.disabled = false;
+            }
+        }
+
+        function setupAutocomplete(inputId, listId) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            function renderList(items) {
+                list.innerHTML = '';
+                if (items.length === 0) { list.style.display = 'none'; return; }
+                items.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'autocomplete-item'; div.textContent = item;
+                    div.addEventListener('click', function() { input.value = item; list.style.display = 'none'; });
+                    list.appendChild(div);
+                });
+                list.style.display = 'block';
+            }
+            input.addEventListener('input', function() { const val = this.value.trim(); renderList(val ? dragonList.filter(d => d.includes(val)) : dragonList); });
+            input.addEventListener('focus', function() { const val = this.value.trim(); renderList(val ? dragonList.filter(d => d.includes(val)) : dragonList); });
+            document.addEventListener('click', function(e) { if (e.target !== input && e.target !== list && !list.contains(e.target)) { list.style.display = 'none'; } });
+        }
+
+       const noCacheUrl = '?v=' + new Date().getTime();
+        Promise.all([
+            fetch('dragon_db.json' + noCacheUrl).then(res => res.json()),
+            fetch('buff.json' + noCacheUrl).then(res => res.json())
+        ])
+        .then(([dragonData, buffData]) => {
+            dragonDB = dragonData;
+            dragonList = Object.keys(dragonDB).sort();
+            weeklyData = buffData;
+
+            const notice = document.getElementById('sysNotice');
+            
+            const statKor = { 'hp': '체력', 'atk': '공격', 'def': '방어' };
+
+            const renderBlock = (item, isBuff) => {
+                const name = item.e || item.t;
+                const stat = statKor[item.stat] || item.stat;
+                const arrow = isBuff ? '▲' : '▼';
+                const color = isBuff ? 'var(--green)' : 'var(--red)';
+                
+                return `
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <div style="color: var(--text); font-weight: 800; font-size: 13px;">${name}</div>
+                        <div style="color: ${color}; font-weight: 800; font-size: 13px; margin-top: 3px;">${arrow} ${stat}</div>
+                    </div>
+                `;
+            };
+
+            let buffHtml = '';
+            if (weeklyData.buff && weeklyData.buff.length > 0) {
+                buffHtml = weeklyData.buff.map(b => renderBlock(b, true)).join('<div style="width: 1px; height: 30px; background: var(--border3); margin: 0 12px;"></div>');
+            } else {
+                buffHtml = `<div style="color:var(--dim); font-size: 13px; font-weight: 800;">없음</div>`;
+            }
+
+            let nerfHtml = '';
+            if (weeklyData.nerf && weeklyData.nerf.length > 0) {
+                nerfHtml = weeklyData.nerf.map(n => renderBlock(n, false)).join('<div style="width: 1px; height: 30px; background: var(--border3); margin: 0 12px;"></div>');
+            } else {
+                nerfHtml = `<div style="color:var(--dim); font-size: 13px; font-weight: 800;">없음</div>`;
+            }
+
+            notice.innerHTML = `
+                <div style="display: flex; width: 100%; justify-content: space-evenly; align-items: stretch; text-align: center;">
+                    <div style="display: flex; flex-direction: column; flex: 1; border-right: 1px solid var(--bd); padding: 0 4px;">
+                        <span style="font-size: 11px; color: var(--dim); font-weight: 800; border-bottom: 1px dashed var(--bd); padding-bottom: 6px; margin-bottom: 8px;">이번 주 버프</span>
+                        <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                            ${buffHtml}
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; flex: 1; padding: 0 4px;">
+                        <span style="font-size: 11px; color: var(--dim); font-weight: 800; border-bottom: 1px dashed var(--bd); padding-bottom: 6px; margin-bottom: 8px;">이번 주 너프</span>
+                        <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                            ${nerfHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            notice.style.backgroundColor = "var(--sf)";
+            notice.style.color = "var(--text)";
+            notice.style.borderColor = "var(--bd)";
+            notice.style.padding = "12px 10px";
+
+            setupAutocomplete('preInput1', 'autoList1');
+            setupAutocomplete('preInput2', 'autoList2');
+            setupAutocomplete('preInput3', 'autoList3');
+        })
+        .catch(err => {
+            console.error(err);
+            const notice = document.getElementById('sysNotice');
+            notice.innerHTML = `⚠️ <b>데이터 로드 실패:</b> JSON 파일을 찾을 수 없습니다.`;
+            notice.style.backgroundColor = "rgba(248, 113, 113, 0.15)";
+            notice.style.color = "#dc2626";
+            notice.style.borderColor = "var(--red)";
+            notice.style.justifyContent = "center";
+            notice.style.padding = "12px 16px";
+        });
+        
+// 화면 좌표 프리셋 없이 OCR bounding box의 반복 행 구조로 검출.
+async function detectStatBoxes(img,worker,progress){
+ const hits=[];
+ for(const scale of [2,3]){
+  progress.textContent=`전체 화면 숫자 위치 탐색 (${scale}배)…`;
+  const c=document.createElement('canvas');const s=Math.min(scale,2400/img.width,2400/img.height);
+  c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+  await worker.setParameters({tessedit_pageseg_mode:'11',tessedit_char_whitelist:'0123456789'});
+  const ret=await worker.recognize(c);
+  for(const w of ret.data.words||[]){
+   if(!/^\d{3,5}$/.test(w.text.trim())||w.confidence<15)continue;
+   const b=w.bbox;const item={x:b.x0/s,y:b.y0/s,w:(b.x1-b.x0)/s,h:(b.y1-b.y0)/s,text:w.text.trim(),confidence:w.confidence};
+   const prior=hits.find(q=>Math.abs(q.x-item.x)<Math.max(q.h,item.h)&&Math.abs(q.y-item.y)<Math.max(q.h,item.h)*.6);
+   if(!prior)hits.push(item);else if(item.confidence>prior.confidence)Object.assign(prior,item);
+  }
+ }
+ const rows=[];
+ for(const q of hits.slice().sort((a,b)=>a.y-b.y)){
+  let row=rows.find(r=>Math.abs(r.cy-(q.y+q.h/2))<Math.max(r.h,q.h)*.65);
+  if(!row){row={cy:q.y+q.h/2,h:q.h,items:[]};rows.push(row);}row.items.push(q);
+ }
+ let best=null;
+ for(const row of rows){
+  const sorted=row.items.sort((a,b)=>a.x-b.x);if(sorted.length<9)continue;
+  for(let start=0;start<=sorted.length-9;start++){
+   const stats=sorted.slice(start,start+9);const hs=stats.map(q=>q.h).sort((a,b)=>a-b),h=hs[4];
+   if(stats.some(q=>q.h<h*.55||q.h>h*1.8))continue;
+   const gaps=stats.slice(1).map((q,i)=>q.x-stats[i].x);
+   if(Math.min(...gaps)<h*.8)continue;
+   let score=stats.reduce((a,q)=>a+q.confidence,0)/9;const ev=[];
+   for(let g=0;g<3;g++){
+    const trip=stats.slice(g*3,g*3+3),lo=trip[0].x-h,hi=trip[2].x+trip[2].w+h;
+    const candidates=hits.filter(q=>q.y+q.h<row.cy&&row.cy-q.y<h*8&&q.x>=lo&&q.x+q.w<=hi&&/^\d{4,5}$/.test(q.text));
+    const target=Number(trip[0].text)+4*(Number(trip[1].text)+Number(trip[2].text));
+    candidates.sort((a,b)=>(Number(b.text)===target)-(Number(a.text)===target)||b.y-a.y);
+    ev.push(candidates[0]||null);if(ev[g])score+=12;if(ev[g]&&Number(ev[g].text)===target)score+=25;
+   }
+   if(ev.filter(Boolean).length<2)continue;
+   if(!best||score>best.score)best={stats,ev,score};
+  }
+ }
+ const expand=q=>{if(!q)return null;const p=Math.max(2,q.h*.22);const x=Math.max(0,q.x-p),y=Math.max(0,q.y-p);return{x,y,w:Math.min(img.width-x,q.w+p*2),h:Math.min(img.height-y,q.h+p*2)};};
+ return best?Array.from({length:3},(_,g)=>[expand(best.ev[g]),...best.stats.slice(g*3,g*3+3).map(expand)]).flat():Array(12).fill(null);
+}
+
+// 숫자 칸별 OCR / 반드시 사용자 확인 후 계산
+async function readStatsSafely(src) {
+  const img = new Image();
+  await new Promise((ok, fail) => { img.onload=ok; img.onerror=()=>fail(new Error('이미지를 읽지 못했습니다.')); img.src=src; });
+  const panel=document.createElement('div');
+  panel.style.cssText='position:fixed;inset:0;background:#101827ee;z-index:99999;overflow:auto;padding:16px;color:#eee';
+  panel.innerHTML=`<div style="max-width:900px;margin:auto"><h2>숫자 영역 확인 → OCR → 값 확인</h2><p>초록 상자가 숫자만 포함하는지 확인하세요. 칸 선택 후 이미지에서 드래그하면 영역을 변경합니다. 자동 탐색은 화면 좌표가 아닌 숫자의 행·열 구조를 사용합니다. 탐색 실패 시 칸을 선택해 직접 지정하세요.</p><button id="roiPreset">숫자 위치 자동 탐색</button> <select id="roiCell"></select> <button id="roiRead">12개 숫자 읽기</button> <button id="roiClose">취소</button><canvas id="roiCanvas" style="display:block;max-width:100%;width:100%;touch-action:none;margin:12px 0"></canvas><div id="roiProgress" aria-live="polite"></div><div id="roiValues" style="display:grid;grid-template-columns:minmax(0,1fr);gap:8px"></div><p>Eval = HP + 4 × (ATK + DEF)로 카드별 검사합니다. 일치해도 오인식이 있을 수 있으므로 원본을 확인하세요. 수치 자동 변경은 하지 않습니다.</p><label><input type="checkbox" id="roiAck"> 원본 숫자 12개와 비교하여 확인했습니다.</label><br><button id="roiConfirm">확인한 값으로 계산</button></div>`;
+  document.body.appendChild(panel);
+  const el=id=>panel.querySelector('#'+id), canvas=el('roiCanvas'), ctx=canvas.getContext('2d');
+  canvas.width=img.width;canvas.height=img.height;
+  const labels=['Eval','HP','ATK','DEF']; let boxes=[], busy=false, worker=null, disposed=false, log=[];
+  for(let g=0;g<3;g++)for(let k=0;k<4;k++){const o=document.createElement('option');o.value=g*4+k;o.textContent=`${g+1}번 ${labels[k]}`;el('roiCell').appendChild(o);}
+  function reset(){boxes=Array(12).fill(null);clearValues();draw();}
+  function clearValues(){el('roiValues').replaceChildren();el('roiAck').checked=false;}
+  function draw(){ctx.drawImage(img,0,0);boxes.forEach((b,i)=>{if(!b)return;ctx.strokeStyle=i===Number(el('roiCell').value)?'#ffca28':'#00ff8a';ctx.lineWidth=Math.max(1,img.width/500);ctx.strokeRect(b.x,b.y,b.w,b.h);});}
+  const point=e=>{const r=canvas.getBoundingClientRect();return{x:Math.max(0,Math.min(img.width,(e.clientX-r.left)*img.width/r.width)),y:Math.max(0,Math.min(img.height,(e.clientY-r.top)*img.height/r.height))};};
+  let start=null;
+  canvas.onpointerdown=e=>{if(busy)return;start=point(e);canvas.setPointerCapture(e.pointerId);};
+  canvas.onpointerup=e=>{if(!start)return;const p=point(e), b={x:Math.min(start.x,p.x),y:Math.min(start.y,p.y),w:Math.abs(start.x-p.x),h:Math.abs(start.y-p.y)};start=null;if(b.w>=3&&b.h>=3){boxes[Number(el('roiCell').value)]=b;clearValues();draw();}};
+  canvas.onpointercancel=()=>start=null;
+  el('roiCell').onchange=draw;
+  function crop(b,kind,variant){
+    const c=document.createElement('canvas'), scale=Math.max(2,Math.min(6,48/b.h)),pad=12;
+    c.width=Math.ceil(b.w*scale)+pad*2;c.height=Math.ceil(b.h*scale)+pad*2;
+    const q=c.getContext('2d');q.fillStyle='white';q.fillRect(0,0,c.width,c.height);q.imageSmoothingEnabled=variant!==2;
+    q.drawImage(img,b.x,b.y,b.w,b.h,pad,pad,b.w*scale,b.h*scale);
+    const d=q.getImageData(pad,pad,c.width-pad*2,c.height-pad*2);
+    for(let i=0;variant!==3 && i<d.data.length;i+=4){const r=d.data[i],g=d.data[i+1],bl=d.data[i+2];let v=.299*r+.587*g+.114*bl;
+      if(kind===0){ // Eval: 녹색/주황색 글자와 어두운 획을 밝은 띠에서 분리
+        const chroma=Math.max(r,g,bl)-Math.min(r,g,bl);
+        v=variant===1?((chroma>45||v<105)?0:255):Math.max(0,Math.min(255,(v-110)*2));
+      }else{v=variant===1?(Math.max(r,g,bl)>155?0:255):255-v;}
+      d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255;
+    }q.putImageData(d,pad,pad);return c;
+  }
+  function validate(){let all=true;for(let g=0;g<3;g++){
+    const a=labels.map((_,k)=>{const input=el(`v${g*4+k}`);return input&&/^\d{1,6}$/.test(input.value)?Number(input.value):NaN;});
+    const valid=a.every(n=>Number.isSafeInteger(n)&&n>0);const match=valid&&a[0]===a[1]+4*(a[2]+a[3]);
+    const msg=el(`check${g}`);if(msg)msg.textContent=match?'✅ Eval 일치 (같은 카드)':valid?'⚠ Eval 불일치 — 원본 재확인':'⚠ 숫자를 입력하세요';all=all&&valid;
+  }return all;}
+  reset();
+  return await new Promise((resolve,reject)=>{
+    async function finish(error,result){if(disposed)return;disposed=true;if(worker){await worker.terminate().catch(()=>{});worker=null;}panel.remove();error?reject(error):resolve(result);}
+    async function locate(){
+      if(busy)return;busy=true;
+      for(const id of ['roiPreset','roiRead','roiClose','roiConfirm'])el(id).disabled=true;
+      try{worker=worker||await Tesseract.createWorker('eng');boxes=await detectStatBoxes(img,worker,el('roiProgress'));clearValues();draw();
+        el('roiProgress').textContent=`${boxes.filter(Boolean).length}/12개 위치 검출. 숫자 전체가 상자 안에 있는지 확인하세요. 미검출 칸은 선택 후 드래그하세요.`;
+      }catch(e){el('roiProgress').textContent='자동 탐색 실패: '+e.message+' — 직접 영역을 지정할 수 있습니다.';}
+      finally{busy=false;for(const id of ['roiPreset','roiRead','roiClose','roiConfirm'])el(id).disabled=false;}
+    }
+    el('roiPreset').onclick=locate;
+    locate();
+    el('roiClose').onclick=()=>{if(!busy)finish(new Error('사용자가 인식을 취소했습니다.'));};
+    el('roiRead').onclick=async()=>{
+      if(busy)return;if(boxes.some(b=>!b)){el('roiProgress').textContent='미검출된 숫자 칸을 선택하고 원본에서 드래그해 지정하세요.';return;}busy=true;el('roiRead').disabled=true;el('roiPreset').disabled=true;el('roiClose').disabled=true;el('roiConfirm').disabled=true;clearValues();log=[];
+      try{worker=worker||await Tesseract.createWorker('eng');
+        await worker.setParameters({tessedit_char_whitelist:'0123456789',tessedit_pageseg_mode:'7'});
+        const results=[];
+        for(let i=0;i<12;i++){
+          el('roiProgress').textContent=`숫자 ${i+1}/12 인식 중…`;
+          const candidates=[];
+          for(let variant=0;variant<4;variant++){
+            await worker.setParameters({tessedit_pageseg_mode:variant===3?'8':'7'});
+            const ret=await worker.recognize(crop(boxes[i],i%4,variant));
+            const text=ret.data.text.trim();const valid=/^\d{1,6}$/.test(text)&&Number(text)>0;
+            candidates.push({text,confidence:Number(ret.data.confidence)||0,valid});
+          }
+          const good=candidates.filter(c=>c.valid);const counts=new Map();good.forEach(c=>counts.set(c.text,(counts.get(c.text)||0)+1));
+          good.sort((a,b)=>(counts.get(b.text)-counts.get(a.text))||(b.confidence-a.confidence));
+          results.push({best:good[0]?.text||'',candidates});log.push({card:Math.floor(i/4)+1,field:labels[i%4],candidates});
+        }
+        for(let g=0;g<3;g++){
+          const card=document.createElement('div');card.style.cssText='border:1px solid #64748b;padding:8px;min-width:0';
+          const title=document.createElement('h3');title.textContent=`${g+1}번 카드`;card.appendChild(title);
+          for(let k=0;k<4;k++){
+            const i=g*4+k,b=boxes[i],row=document.createElement('div'),thumb=document.createElement('canvas');
+            thumb.width=Math.ceil(b.w*4);thumb.height=Math.ceil(b.h*4);thumb.getContext('2d').drawImage(img,b.x,b.y,b.w,b.h,0,0,thumb.width,thumb.height);thumb.style.cssText='max-width:100%;display:block';
+            const label=document.createElement('label');label.textContent=labels[k]+' ';const input=document.createElement('input');input.id=`v${i}`;input.type='text';input.inputMode='numeric';input.value=results[i].best;input.style.width='85px';input.oninput=()=>{el('roiAck').checked=false;validate();};label.appendChild(input);row.append(label,thumb);
+            const details=document.createElement('small');details.style.display='block';details.style.overflowWrap='anywhere';details.textContent='OCR 후보: '+results[i].candidates.map(c=>`${c.text||'미인식'} (${c.confidence.toFixed(0)})`).join(' / ');row.appendChild(details);card.appendChild(row);
+          }const check=document.createElement('p');check.id=`check${g}`;card.appendChild(check);el('roiValues').appendChild(card);
+        }validate();el('roiProgress').textContent='원본 잘라낸 이미지와 값을 비교한 후 확인하세요. OCR 점수는 정확도 확률이 아닙니다.';
+      }catch(e){el('roiProgress').textContent='인식 실패: '+e.message;}
+      finally{busy=false;el('roiRead').disabled=false;el('roiPreset').disabled=false;el('roiClose').disabled=false;el('roiConfirm').disabled=false;}
+    };
+    el('roiConfirm').onclick=()=>{
+      if(busy||!validate()||!el('roiAck').checked){el('roiProgress').textContent='12개 숫자를 모두 입력하고 원본 확인 체크를 해주세요.';return;}
+      const vals=Array.from({length:12},(_,i)=>Number(el(`v${i}`).value));
+      const mismatch=[0,1,2].filter(g=>vals[g*4]!==vals[g*4+1]+4*(vals[g*4+2]+vals[g*4+3]));
+      if(mismatch.length&&!window.confirm(`${mismatch.map(g=>g+1).join(', ')}번 카드 Eval이 일치하지 않습니다. 원본을 확인한 입력값으로 계산할까요?`))return;
+      finish(null,{stats:[0,1,2].flatMap(g=>vals.slice(g*4+1,g*4+4)),log:JSON.stringify({recognition:log,confirmed:vals,mismatch},null,2),mismatch});
+    };
+  });
+}
+
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const extractBtn = document.getElementById('extractBtn');
+        const statusDiv = document.getElementById('status');
+        const resultSection = document.getElementById('resultSection');
+        const parsedResults = document.getElementById('parsedResults');
+        const rawText = document.getElementById('rawText');
+
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    document.getElementById('preSelectArea').style.display = 'block'; 
+                    
+                    document.getElementById('extractBtnContainer').style.display = 'block';
+                    extractBtn.style.pointerEvents = 'auto';
+                    extractBtn.style.opacity = '1';
+
+                    statusDiv.innerHTML = "계산 준비 완료 ✅";
+                    resultSection.style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        extractBtn.addEventListener('click', async () => {
+            extractBtn.style.pointerEvents = 'none';
+            extractBtn.style.opacity = '0.5';
+            statusDiv.innerHTML = "스탯 인식 중... ⏳";
+            imageInput.disabled = true;
+            parsedResults.innerHTML = '';
+            
+            currentTotalBuffCount = 0; 
+            currentTotalNerfCount = 0; 
+            
+            const selectedNames = [
+                document.getElementById('preInput1').value.trim() || "그룹 1",
+                document.getElementById('preInput2').value.trim() || "그룹 2",
+                document.getElementById('preInput3').value.trim() || "그룹 3"
+            ];
+            const selectedGrades = [
+                document.getElementById('preGrade1').value,
+                document.getElementById('preGrade2').value,
+                document.getElementById('preGrade3').value
+            ];
+
+            try {
+                const verified = await readStatsSafely(imagePreview.src);
+                const statNumbers = verified.stats;
+                rawText.value = verified.log;
+                if (statNumbers && statNumbers.length === 9) {
+                    statusDiv.textContent = verified.mismatch.length ? '⚠ Eval 불일치: 사용자가 확인한 입력값으로 계산했습니다.' : '사용자 확인 및 카드별 Eval 검증 완료 ✅';
+                    statusDiv.style.color = verified.mismatch.length ? '#dc2626' : 'var(--dim)';
+                    let html = '<div class="groups-wrapper">';
+                    const colors = ['group-1', 'group-2', 'group-3']; 
+                    let totalBival = 0;
+                    
+                    for (let i = 0; i < 9; i += 3) {
+                        const groupNum = Math.floor(i / 3) + 1;
+                        const dragonName = selectedNames[groupNum - 1]; 
+                        const dragonGrade = selectedGrades[groupNum - 1];
+                        
+                        let base_hp = parseInt(statNumbers[i], 10);
+                        let base_atk = parseInt(statNumbers[i+1], 10);
+                        let base_def = parseInt(statNumbers[i+2], 10);
+                        
+                        const calculatedEval = base_hp + ((base_atk + base_def) * 4);
+                        let buff_hp = 0, buff_atk = 0, buff_def = 0;
+                        let infoBadge = `<span class="dragon-type" style="visibility:hidden;">[미지정/미지정]</span>`; 
+                        
+                        let dragonBuffCount = 0;
+                        let dragonNerfCount = 0;
+                        
+                        const dragonInfo = dragonDB[dragonName];
+                        if (dragonInfo) {
+                            const eType = dragonInfo.e;
+                            const tType = dragonInfo.t; 
+                            
+                            infoBadge = `<span class="dragon-type">[${eType} / ${tType}]</span>`;
+
+                            let buffElements = new Set();
+                            let buffTypes = new Set();
+                            let nerfElements = new Set();
+                            let nerfTypes = new Set();
+                            
+                            if (weeklyData.base_stats && weeklyData.base_stats[dragonGrade]) {
+                                const baseStats = weeklyData.base_stats[dragonGrade][tType];
+                                if (baseStats) {
+                                    if (weeklyData.buff) {
+                                        weeklyData.buff.forEach(b => {
+                                            if(b.e) buffElements.add(b.e);
+                                            if(b.t) buffTypes.add(b.t);
+                                            if (b.e === eType || b.t === tType) {
+                                                let amount = Math.floor(baseStats[b.stat] * (b.percent / 100));
+                                                if (b.stat === 'hp') buff_hp += amount;
+                                                if (b.stat === 'atk') buff_atk += amount;
+                                                if (b.stat === 'def') buff_def += amount;
+                                            }
+                                        });
+                                    }
+                                    if (weeklyData.nerf) {
+                                        weeklyData.nerf.forEach(n => {
+                                            if(n.e) nerfElements.add(n.e);
+                                            if(n.t) nerfTypes.add(n.t);
+                                            if (n.e === eType || n.t === tType) {
+                                                let amount = Math.floor(baseStats[n.stat] * (n.percent / 100));
+                                                if (n.stat === 'hp') buff_hp -= amount;
+                                                if (n.stat === 'atk') buff_atk -= amount;
+                                                if (n.stat === 'def') buff_def -= amount;
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+                            if (buffElements.has(eType)) dragonBuffCount++;
+                            if (buffTypes.has(tType)) dragonBuffCount++;
+                            if (nerfElements.has(eType)) dragonNerfCount++; 
+                            if (nerfTypes.has(tType)) dragonNerfCount++;    
+                        }
+                        
+                        currentTotalBuffCount += dragonBuffCount;
+                        currentTotalNerfCount += dragonNerfCount;
+
+                        let final_hp = base_hp + buff_hp;
+                        let final_atk = base_atk + buff_atk;
+                        let final_def = base_def + buff_def;
+                        
+                        let groupBival = final_hp * final_atk * final_def;
+                        totalBival += groupBival;
+                        
+                        let currentGroupData = { 
+                            name: dragonName, 
+                            base_hp: base_hp, buff_hp: buff_hp, 
+                            base_atk: base_atk, buff_atk: buff_atk, 
+                            base_def: base_def, buff_def: buff_def, 
+                            bival: groupBival 
+                        };
+                        if (groupNum === 1) currentG1 = currentGroupData;
+                        if (groupNum === 2) currentG2 = currentGroupData;
+                        if (groupNum === 3) currentG3 = currentGroupData;
+
+                        const formatStat = (base, buff) => {
+                            if (buff > 0) return `<b>${base}</b> <div class="stat-buff-plus">(+${buff})</div>`;
+                            if (buff < 0) return `<b>${base}</b> <div class="stat-buff-minus">(${buff})</div>`;
+                            return `<b>${base}</b> <div class="stat-buff-plus" style="visibility:hidden;">(+0)</div>`;
+                        };
+
+                        let gradeHtml = '';
+                        if (dragonGrade === '9.0') {
+                            gradeHtml = `<img src="./images/grade_9.png" alt="9.0" style="height: 24px;">`;
+                        } else if (dragonGrade === '8.0') {
+                            gradeHtml = `<img src="./images/grade_8.png" alt="8.0" style="height: 24px;">`;
+                        } else {
+                            gradeHtml = `<span class="grade-badge">⭐ ${dragonGrade} 등급</span>`;
+                        }
+
+                        html += `
+                            <div class="group ${colors[groupNum-1]}">
+                                <div class="group-header">
+                                    <span class="dragon-title">
+                                        <img src="./images/icons/${dragonName}.png" alt="${dragonName}" class="dragon-icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                                        <span style="display:none;">🐲</span> 
+                                        ${dragonName} ${infoBadge}
+                                    </span>
+                                    ${gradeHtml}
+                                </div>
+                                <div class="badges-container">
+                                    <span class="eval-badge">Eval: ${calculatedEval}</span>
+                                    <span class="badge-success">스탯 인식 완료</span>
+                                </div>
+                                
+                                <div class="stat-container">
+                                    <div class="stat-box stat-hp">HP${formatStat(base_hp, buff_hp)}</div>
+                                    <div class="stat-box stat-atk">ATK${formatStat(base_atk, buff_atk)}</div>
+                                    <div class="stat-box stat-def">DEF${formatStat(base_def, buff_def)}</div>
+                                </div>
+                                
+                                <div class="bival-box">
+                                    <span class="bival-label">📊 비밸 (버프 적용):</span>
+                                    <span class="bival-score">${groupBival.toLocaleString()}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    html += '</div>';
+                    currentCalculatedBival = totalBival;
+
+                    html += `
+                        <div style="margin-top: 25px; text-align: center;">
+                            <button class="toggle-debug-btn" onclick="const wrapper = document.getElementById('debugImageWrapper'); wrapper.style.display = wrapper.style.display === 'none' ? 'block' : 'none'; this.innerText = wrapper.style.display === 'none' ? '스탯 확인용 이미지 표시하기 ▼' : '스탯 확인용 이미지 닫기 ▲';">스탯 확인용 이미지 표시하기 ▼</button>
+                            <div id="debugImageWrapper" style="display: none; margin-top: 15px;">
+                                <img src="${imagePreview.src}" style="max-width: 100%; border: 1px solid var(--bd); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                            </div>
+                        </div>
+                    `;
+
+                    html += `
+                        <div class="total-bival-box">
+                            🏆 이번 주 총합 비밸
+                            <span>${totalBival.toLocaleString()}</span>
+                            <div class="submit-section">
+                                <input type="text" id="nicknameInput" placeholder="닉네임 입력 (최대 10자)" maxlength="10">
+                                <button id="submitScoreBtn" onclick="submitScoreToDB()">주간 랭킹에 기록 등록하기</button>
+                            </div>
+                        </div>
+                    `;
+                    parsedResults.innerHTML = html;
+                } else {
+                    parsedResults.innerHTML = `
+                        <div style="background: rgba(248, 113, 113, 0.15); color: #dc2626; border: 1px solid var(--red); padding:15px; border-radius:8px; text-align:center; font-weight:bold; margin-bottom: 20px;">
+                            ❌ 스탯을 안정적으로 추출하지 못했습니다.<br>스크린샷이 덱 설정 화면 전체를 포함하는지 확인해 주세요.
+                        </div>
+                        <div style="text-align: center;">
+                            <button class="toggle-debug-btn" onclick="const wrapper = document.getElementById('debugImageWrapper'); wrapper.style.display = wrapper.style.display === 'none' ? 'block' : 'none'; this.innerText = wrapper.style.display === 'none' ? '스탯 확인용 이미지 표시하기 ▼' : '스탯 확인용 이미지 닫기 ▲';">스탯 확인용 이미지 표시하기 ▼</button>
+                            <div id="debugImageWrapper" style="display: none; margin-top: 15px;">
+                                <img src="${imagePreview.src}" style="max-width: 100%; border: 1px solid var(--bd); border-radius: 8px;">
+                            </div>
+                        </div>
+                    `;
+                    statusDiv.innerHTML = "인식 실패 ❌";
+                }
+                
+                resultSection.style.display = 'block';
+
+            } catch (error) {
+                console.error(error);
+                statusDiv.textContent = '계산 중단: ' + error.message;
+            } finally {
+                imageInput.disabled = false;
+                extractBtn.style.pointerEvents = 'auto';
+                extractBtn.style.opacity = '1';
+            }
+        });
+    </script>
+</div>
+</body>
+</html>
