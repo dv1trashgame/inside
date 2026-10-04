@@ -44,7 +44,6 @@
         .upload-section, .result-section { background: var(--sf); padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid var(--bd); }
         
         #imagePreview { width: 100%; height: auto; margin-top: 15px; border-radius: 8px; display: none; border: 1px solid var(--bd); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        #processedPreview { max-width: 100%; max-height: 300px; margin-top: 15px; border-radius: 8px; display: none; }
         
         button { background: linear-gradient(135deg, var(--gold2), var(--gold)); color: white; padding: 16px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 20px; font-weight: 800; width: 100%; box-shadow: 0 4px 10px rgba(59, 72, 144, 0.2); transition: all 0.2s ease; }
         button:hover { transform: translateY(-2px); opacity: 0.9; }
@@ -69,15 +68,16 @@
         
         .buff-info { background-color: var(--sf2); color: var(--dim); padding: 12px 16px; border-radius: 8px; font-size: 15px; margin-bottom: 20px; border: 1px solid var(--bd); display: flex; align-items: center; justify-content: center; font-weight: 600; }
         
-        .stat-container { display: flex; gap: 8px; justify-content: space-between; margin-bottom: 15px; align-items: stretch; }
-        .stat-box { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 10px 4px; border-radius: 6px; text-align: center; font-size: 12px; font-weight: bold; line-height: 1.2; }
+        /* 1번 수정: 세로 배치 레이아웃 설정 */
+        .stat-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; width: 100%; }
+        .stat-box { width: 100%; display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; }
         .stat-hp { background-color: rgba(251, 191, 36, 0.15); border: 1px solid #fbbf24; color: #d97706; }
         .stat-atk { background-color: rgba(248, 113, 113, 0.15); border: 1px solid #f87171; color: #dc2626; }
         .stat-def { background-color: rgba(96, 165, 250, 0.15); border: 1px solid #60a5fa; color: #2563eb; }
-        .stat-box b { font-size: 18px; display: block; margin-top: 4px; color: var(--text); letter-spacing: 0.5px; }
+        .stat-box b { font-size: 16px; color: var(--text); letter-spacing: 0.5px; }
         
-        .stat-buff-plus { color: #16a34a; font-weight: bold; font-size: 12px; margin-top: 4px; min-height: 14px; }
-        .stat-buff-minus { color: #dc2626; font-weight: bold; font-size: 12px; margin-top: 4px; min-height: 14px; }
+        .stat-buff-plus { color: #16a34a; font-weight: bold; font-size: 12px; margin-left: 4px; display: inline-block; }
+        .stat-buff-minus { color: #dc2626; font-weight: bold; font-size: 12px; margin-left: 4px; display: inline-block; }
 
         .bival-box { text-align: center; background: var(--sf); padding: 12px; border-radius: 6px; border: 1px dashed var(--bd); margin-top: auto; }
         .bival-label { font-size: 12px; color: var(--dim); margin-bottom: 4px; display: block; }
@@ -127,7 +127,6 @@
         .detail-card { background: var(--sf2); border: 1px solid var(--border3); border-radius: 8px; padding: 10px; flex: 1; min-width: 140px; font-size: 12px; text-align: center; }
         .detail-card span.d-name { display: block; color: var(--dim); margin-bottom: 6px; font-size: 12px; font-weight: bold; }
         .detail-card b { color: var(--text); font-size: 13px; }
-        .detail-bival { display: block; margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--bd); color: var(--gold); font-weight: 800; font-size: 13px; }
 
         .pre-select-area { display: none; margin-top: 25px; padding: 25px; background-color: var(--sf2); border-radius: 12px; border: 1px solid var(--bd); }
         .pre-select-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px; } 
@@ -168,10 +167,10 @@
             .badges-container { gap: 4px; margin-bottom: 12px; }
             .eval-badge, .badge-success, .grade-badge { font-size: 8px; padding: 4px 5px; border-radius: 3px; }
             
-            .stat-container { gap: 3px; margin-bottom: 12px; align-items: stretch; } 
-            .stat-box { padding: 6px 2px; font-size: 8px; border-radius: 4px; }
-            .stat-box b { font-size: 11px; margin-top: 3px; }
-            .stat-buff-plus, .stat-buff-minus { font-size: 8px; margin-top: 2px; min-height: 10px; }
+            .stat-container { gap: 6px; margin-bottom: 12px; } 
+            .stat-box { padding: 6px 6px; font-size: 10px; border-radius: 4px; }
+            .stat-box b { font-size: 12px; }
+            .stat-buff-plus, .stat-buff-minus { font-size: 9px; }
             
             .group-header img:not(.dragon-icon) { height: 16px !important; }
 
@@ -202,6 +201,11 @@
             .details-container { flex-direction: column; gap: 6px; width: 100%; box-sizing: border-box; }
             .detail-card { min-width: 0 !important; width: 100%; margin: 0; box-sizing: border-box; overflow: hidden; }
         }
+        .stat-edit { width: 80px; box-sizing: border-box; padding: 2px 4px; font: inherit; font-size: 15px; font-weight: bold; text-align: center; color: var(--text); background: var(--sf); border: 1px dashed var(--bd); border-radius: 4px; letter-spacing: 0.5px; outline: none; }
+        .stat-edit:focus { border-style: solid; border-color: #60a5fa; }
+        .stat-edit.invalid { border-color: #dc2626; background: rgba(248,113,113,0.15); }
+        .edit-hint { text-align: center; font-size: 12px; color: var(--dim); margin: 0 0 12px; font-weight: 700; }
+        @media (max-width: 600px) { .stat-edit { font-size: 11px; width: 55px; padding: 1px 2px; } .edit-hint { font-size: 10px; } }
     </style>
 </head>
 <body>
@@ -333,6 +337,38 @@
         let currentTotalNerfCount = 0; 
         
         let currentG1 = {}, currentG2 = {}, currentG3 = {}; 
+        let groupMeta = [];
+        let ocrStats = [];
+
+        function recalcFromEdits() {
+            let total = 0, allValid = true;
+            const inputs = document.querySelectorAll('.stat-edit');
+            inputs.forEach(el => {
+                const v = ocrStats[parseInt(el.dataset.idx, 10)];
+                const bad = !(v > 0);
+                el.classList.toggle('invalid', bad);
+                if (bad) allValid = false;
+            });
+            for (let g = 0; g < 3; g++) {
+                const m = groupMeta[g]; if (!m) continue;
+                const hp = ocrStats[g*3] || 0, atk = ocrStats[g*3+1] || 0, def = ocrStats[g*3+2] || 0;
+                const bival = (hp + m.buff_hp) * (atk + m.buff_atk) * (def + m.buff_def);
+                total += bival;
+                const ev = document.getElementById('evalBadge' + (g+1));
+                if (ev) ev.textContent = 'Eval: ' + (hp + (atk + def) * 4);
+                const bv = document.getElementById('bivalScore' + (g+1));
+                if (bv) bv.textContent = bival.toLocaleString();
+                const data = { name: m.name, base_hp: hp, buff_hp: m.buff_hp, base_atk: atk, buff_atk: m.buff_atk, base_def: def, buff_def: m.buff_def, bival: bival };
+                if (g === 0) currentG1 = data;
+                if (g === 1) currentG2 = data;
+                if (g === 2) currentG3 = data;
+            }
+            currentCalculatedBival = total;
+            const t = document.getElementById('totalBivalSpan');
+            if (t) t.textContent = total.toLocaleString();
+            const sb = document.getElementById('submitScoreBtn');
+            if (sb) { sb.disabled = !allValid; sb.style.opacity = allValid ? '' : '0.5'; }
+        }
 
         const modal = document.getElementById("leaderboardModal");
         const btn = document.getElementById("openLeaderboardBtn");
@@ -453,7 +489,7 @@
                                 <div class="details-container">
                                     <div class="detail-card">
                                         <span class="d-name">${renderDragonName(row.g1?.name)}</span>
-                                        <div style="display:flex; justify-content:space-around; margin:8px 0; padding-bottom:6px; border-bottom: 1px dashed var(--bd);">
+                                        <div style="display:flex; justify-style:space-around; margin:8px 0; padding-bottom:6px; border-bottom: 1px dashed var(--bd);">
                                             ${formatDetailStat('HP', row.g1?.base_hp, row.g1?.buff_hp)}
                                             ${formatDetailStat('ATK', row.g1?.base_atk, row.g1?.buff_atk)}
                                             ${formatDetailStat('DEF', row.g1?.base_def, row.g1?.buff_def)}
@@ -502,6 +538,7 @@
         }
 
         async function submitScoreToDB() {
+            if (ocrStats.length !== 9 || ocrStats.some(v => !(v > 0))) { alert("비어 있거나 0인 스탯이 있습니다. 확인해 주세요."); return; }
             const nickname = document.getElementById("nicknameInput").value.trim();
             if(!nickname) { alert("닉네임을 입력해주세요!"); return; }
             if(nickname.length > 10) { alert("닉네임은 10자 이내로 입력해주세요!"); return; }
@@ -554,7 +591,7 @@
             document.addEventListener('click', function(e) { if (e.target !== input && e.target !== list && !list.contains(e.target)) { list.style.display = 'none'; } });
         }
 
-       const noCacheUrl = '?v=' + new Date().getTime();
+        const noCacheUrl = '?v=' + new Date().getTime();
         Promise.all([
             fetch('dragon_db.json' + noCacheUrl).then(res => res.json()),
             fetch('buff.json' + noCacheUrl).then(res => res.json())
@@ -565,7 +602,6 @@
             weeklyData = buffData;
 
             const notice = document.getElementById('sysNotice');
-            
             const statKor = { 'hp': '체력', 'atk': '공격', 'def': '방어' };
 
             const renderBlock = (item, isBuff) => {
@@ -633,6 +669,166 @@
             notice.style.padding = "12px 16px";
         });
         
+        // 2번 수정: OCR 전처리 과정과 분리하여 원본 스크린샷에서 각 그룹별 스탯 영역을 자른 확인용 이미지 생성
+        function getOriginalStatCropImage(imgSrc) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = img.width;
+                    tempCanvas.height = img.height;
+                    const tempCtx = tempCanvas.getContext('2d');
+                    tempCtx.drawImage(img, 0, 0);
+                    const tempData = tempCtx.getImageData(0, 0, img.width, img.height).data;
+
+                    const rowBrightness = new Float32Array(img.height);
+                    const startX = Math.floor(img.width * 0.3);
+                    const endX = Math.floor(img.width * 0.7);
+                    const scanWidth = endX - startX;
+
+                    for (let y = 0; y < img.height; y++) {
+                        let sum = 0;
+                        for (let x = startX; x < endX; x++) {
+                            const i = (y * img.width + x) * 4;
+                            sum += 0.299 * tempData[i] + 0.587 * tempData[i+1] + 0.114 * tempData[i+2];
+                        }
+                        rowBrightness[y] = sum / scanWidth;
+                    }
+
+                    const safeTop = Math.floor(img.height * 0.15);
+                    const safeBottom = Math.floor(img.height * 0.85);
+
+                    let statBottomY = safeBottom;
+                    let statTopY = safeBottom;
+                    let phase = 0, darkHeight = 0, tempStatBottom = safeBottom;
+
+                    for (let y = safeBottom; y >= safeTop; y--) {
+                        let b = rowBrightness[y];
+                        if (phase === 0) {
+                            if (b > 115) phase = 1;
+                        } else if (phase === 1) {
+                            if (b < 105) { phase = 2; tempStatBottom = y; darkHeight = 1; }
+                        } else if (phase === 2) {
+                            if (b < 105) { darkHeight++; } 
+                            else if (b > 115) { 
+                                if (darkHeight > img.height * 0.045) {
+                                    statBottomY = tempStatBottom; statTopY = y; phase = 3;
+                                } else { phase = 1; }
+                            }
+                        } else if (phase === 3) { break; }
+                    }
+
+                    const cropTop = Math.max(0, statTopY - Math.floor(img.height * 0.03));
+                    const cropBottom = Math.min(img.height, statBottomY + Math.floor(img.height * 0.02));
+                    const cropH = cropBottom - cropTop;
+
+                    const outCanvas = document.createElement('canvas');
+                    outCanvas.width = img.width;
+                    outCanvas.height = cropH;
+                    const outCtx = outCanvas.getContext('2d');
+                    
+                    // 원본 스크린샷 컬러 그대로 자르기
+                    outCtx.drawImage(img, 0, cropTop, img.width, cropH, 0, 0, img.width, cropH);
+                    resolve(outCanvas.toDataURL('image/png'));
+                };
+                img.src = imgSrc;
+            });
+        }
+
+        // 3번 수정: 스크린샷 내 버프 / 너프 표시 자동 인식 처리 (스탯 산출과는 연관X, 랭킹 전송용)
+        function detectBuffAndNerfIcons(img) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                const imageData = ctx.getImageData(0, 0, img.width, img.height);
+                const data = imageData.data;
+
+                let buffDetected = 0;
+                let nerfDetected = 0;
+
+                // 버프/너프 마크 탐색 영역 (상단 15%~70%)
+                const startY = Math.floor(img.height * 0.15);
+                const endY = Math.floor(img.height * 0.70);
+
+                let orangePixelMap = [];
+                let yellowPixelMap = [];
+
+                for (let y = startY; y < endY; y += 2) {
+                    for (let x = 0; x < img.width; x += 2) {
+                        const i = (y * img.width + x) * 4;
+                        const r = data[i], g = data[i+1], b = data[i+2];
+
+                        // 주황색 테두리/문자 (E마크: 속성 버프/너프)
+                        if (r > 200 && g >= 70 && g <= 160 && b < 60) {
+                            orangePixelMap.push({x, y});
+                        }
+                        // 노란색/골드 테두리/문자 (T마크: 타입 버프/너프)
+                        if (r > 200 && g > 170 && b < 80) {
+                            yellowPixelMap.push({x, y});
+                        }
+                    }
+                }
+
+                // 화살표 패턴 검사 (상단 삼각: 버프, 하단 삼각: 너프)
+                function analyzeArrowDirection(pixelGroup) {
+                    if (pixelGroup.length < 15) return null;
+                    let minY = Infinity, maxY = -Infinity;
+                    pixelGroup.forEach(p => {
+                        if (p.y < minY) minY = p.y;
+                        if (p.y > maxY) maxY = p.y;
+                    });
+                    const h = maxY - minY;
+                    if (h < 10 || h > 100) return null;
+
+                    let topHalfCount = 0, bottomHalfCount = 0;
+                    const midY = minY + h / 2;
+                    pixelGroup.forEach(p => {
+                        if (p.y < midY) topHalfCount++;
+                        else bottomHalfCount++;
+                    });
+
+                    // 위쪽에 화살표 밀집 -> Buff / 아래쪽에 밀집 -> Nerf
+                    return topHalfCount > bottomHalfCount ? 'buff' : 'nerf';
+                }
+
+                // 그룹화 처리
+                const processClusters = (pixels) => {
+                    let visited = new Set();
+                    let clusters = [];
+                    for (let i = 0; i < pixels.length; i++) {
+                        if (visited.has(i)) continue;
+                        let cluster = [pixels[i]];
+                        visited.add(i);
+                        for (let j = i + 1; j < pixels.length; j++) {
+                            if (visited.has(j)) continue;
+                            const dx = Math.abs(pixels[i].x - pixels[j].x);
+                            const dy = Math.abs(pixels[i].y - pixels[j].y);
+                            if (dx < 25 && dy < 45) {
+                                cluster.push(pixels[j]);
+                                visited.add(j);
+                            }
+                        }
+                        if (cluster.length >= 20) {
+                            clusters.push(cluster);
+                        }
+                    }
+                    clusters.forEach(c => {
+                        const dir = analyzeArrowDirection(c);
+                        if (dir === 'buff') buffDetected++;
+                        if (dir === 'nerf') nerfDetected++;
+                    });
+                };
+
+                processClusters(orangePixelMap);
+                processClusters(yellowPixelMap);
+
+                resolve({ buffCount: buffDetected, nerfCount: nerfDetected });
+            });
+        }
+
         function preprocessImageForOCR(imgSrc) {
             return new Promise((resolve) => {
                 const img = new Image();
@@ -665,50 +861,31 @@
                     let statTopY = safeBottom;
                     let evalTopY = safeTop;
 
-                    let phase = 0;
-                    let darkHeight = 0;
-                    let tempStatBottom = safeBottom;
+                    let phase = 0, darkHeight = 0, tempStatBottom = safeBottom;
 
                     for (let y = safeBottom; y >= safeTop; y--) {
                         let b = rowBrightness[y];
-
                         if (phase === 0) {
                             if (b > 115) phase = 1;
-                        } 
-                        else if (phase === 1) {
-                            if (b < 105) {
-                                phase = 2;
-                                tempStatBottom = y;
-                                darkHeight = 1;
-                            }
-                        } 
-                        else if (phase === 2) {
-                            if (b < 105) {
-                                darkHeight++;
-                            } else if (b > 115) { 
+                        } else if (phase === 1) {
+                            if (b < 105) { phase = 2; tempStatBottom = y; darkHeight = 1; }
+                        } else if (phase === 2) {
+                            if (b < 105) { darkHeight++; } 
+                            else if (b > 115) { 
                                 if (darkHeight > img.height * 0.045) {
-                                    statBottomY = tempStatBottom;
-                                    statTopY = y; 
-                                    phase = 3;
-                                } else {
-                                    phase = 1;
-                                }
+                                    statBottomY = tempStatBottom; statTopY = y; phase = 3;
+                                } else { phase = 1; }
                             }
-                        } 
-                        else if (phase === 3) {
+                        } else if (phase === 3) {
                             if (statTopY - y > img.height * 0.015) {
-                                if (b < 100) {
-                                    evalTopY = y; 
-                                    break;
-                                }
+                                if (b < 100) { evalTopY = y; break; }
                             }
                         }
                     }
 
                     const evalRowBrightness = new Float32Array(img.width);
                     for (let x = 0; x < img.width; x++) {
-                        let sum = 0;
-                        let count = 0;
+                        let sum = 0, count = 0;
                         for (let y = evalTopY; y < statTopY; y++) {
                             const i = (y * img.width + x) * 4;
                             sum += 0.299 * tempData[i] + 0.587 * tempData[i+1] + 0.114 * tempData[i+2];
@@ -717,8 +894,7 @@
                         evalRowBrightness[x] = count > 0 ? sum / count : 0;
                     }
 
-                    let cropLeft = 0;
-                    let cropRight = img.width;
+                    let cropLeft = 0, cropRight = img.width;
                     for (let x = 0; x < Math.floor(img.width / 2); x++) {
                         if (evalRowBrightness[x] > 115) { cropLeft = x; break; }
                     }
@@ -747,40 +923,29 @@
 
                     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                     const data = imageData.data;
-                    const splitY = (statTopY - cropTop + pad) * scale;
-
                     const contrast = 80; 
                     const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
 
                     for (let y = 0; y < canvas.height; y++) {
-                        const isEvalBox = false;
                         for (let x = 0; x < canvas.width; x++) {
                             const i = (y * canvas.width + x) * 4;
-                            // 최대 채널값으로 빨강·초록·흰색 숫자의 밝은 획을 유지.
                             const r = data[i], g = data[i+1], b = data[i+2];
-                            let gray = Math.max(r, g, b);
-
-                            if (!isEvalBox) {
-                                gray = 255 - gray;
-                            }
-
+                            let gray = 255 - Math.max(r, g, b);
                             gray = factor * (gray - 128) + 128;
-
                             if (gray > 255) gray = 255;
                             if (gray < 0) gray = 0;
-
                             data[i] = data[i+1] = data[i+2] = gray;
                         }
                     }
 
                     ctx.putImageData(imageData, 0, 0);
-                    // 반전으로 검게 된 여백을 흰색으로 복원해 문자 행 검출에서 제외.
                     ctx.fillStyle = 'white';
                     const margin = Math.round(pad * scale);
                     ctx.fillRect(0, 0, canvas.width, margin);
                     ctx.fillRect(0, canvas.height - margin, canvas.width, margin);
                     ctx.fillRect(0, 0, margin, canvas.height);
                     ctx.fillRect(canvas.width - margin, 0, margin, canvas.height);
+
                     const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
                     const runs = []; let begin = -1;
                     const minInk = Math.max(4, canvas.width * 0.004);
@@ -805,8 +970,7 @@
                     const rowCtx = rowCanvas.getContext('2d');
                     rowCtx.fillStyle = 'white'; rowCtx.fillRect(0, 0, rowCanvas.width, rowCanvas.height);
                     rowCtx.drawImage(canvas, 0, band[0], canvas.width, band[1] - band[0], 0, 12, canvas.width, band[1] - band[0]);
-                    const dataUrl = rowCanvas.toDataURL('image/png');
-                    resolve(dataUrl);
+                    resolve(rowCanvas.toDataURL('image/png'));
                 };
                 img.src = imgSrc;
             });
@@ -849,7 +1013,7 @@
         extractBtn.addEventListener('click', async () => {
             extractBtn.style.pointerEvents = 'none';
             extractBtn.style.opacity = '0.5';
-            statusDiv.innerHTML = "스탯 인식 중... ⏳";
+            statusDiv.innerHTML = "스탯 및 버프 인식 중... ⏳";
             parsedResults.innerHTML = '';
             
             currentTotalBuffCount = 0; 
@@ -869,8 +1033,18 @@
             try {
                 let statNumbers = null;
             
+                // 스탯 확인용 원본 이미지(컬러 자르기) 생성
+                const originalCroppedImgSrc = await getOriginalStatCropImage(imagePreview.src);
+
+                // 스크린샷 내 버프/너프 마크 자동 인식 처리 (랭킹 순위표 전달용)
+                const imgObj = new Image();
+                imgObj.src = imagePreview.src;
+                await new Promise(r => imgObj.onload = r);
+                const detectedBuffNerf = await detectBuffAndNerfIcons(imgObj);
+
                 statusDiv.innerHTML = "OCR 스탯 인식 중... ⏳";
                 const processedImgSrc = await preprocessImageForOCR(imagePreview.src);
+
                 let debugImage = document.getElementById('ocrInputDebug');
                 if (!debugImage) {
                     debugImage = document.createElement('img'); debugImage.id = 'ocrInputDebug';
@@ -898,8 +1072,10 @@
                 statNumbers = parseStatsFromOCRText(ret.data.text);
             
                 if (statNumbers && statNumbers.length === 9) {
-                    statusDiv.textContent = 'ス탯 행 OCR 완료 — 원본과 결과를 확인하세요.'.replace('ス', '스');
-                    let html = '<div class="groups-wrapper">';
+                    statusDiv.textContent = '스탯 행 OCR 완료 — 원본과 결과를 확인하세요.';
+                    groupMeta = [];
+                    ocrStats = statNumbers.slice();
+                    let html = '<div class="edit-hint">✏️ 인식된 스탯이 틀렸다면 숫자를 직접 수정하세요. 비밸이 즉시 다시 계산됩니다.</div><div class="groups-wrapper">';
                     const colors = ['group-1', 'group-2', 'group-3']; 
                     let totalBival = 0;
                     
@@ -976,6 +1152,7 @@
                         let groupBival = final_hp * final_atk * final_def;
                         totalBival += groupBival;
                         
+                        groupMeta[groupNum - 1] = { name: dragonName, buff_hp, buff_atk, buff_def };
                         let currentGroupData = { 
                             name: dragonName, 
                             base_hp: base_hp, buff_hp: buff_hp, 
@@ -987,10 +1164,12 @@
                         if (groupNum === 2) currentG2 = currentGroupData;
                         if (groupNum === 3) currentG3 = currentGroupData;
 
-                        const formatStat = (base, buff) => {
-                            if (buff > 0) return `<b>${base}</b> <div class="stat-buff-plus">(+${buff})</div>`;
-                            if (buff < 0) return `<b>${base}</b> <div class="stat-buff-minus">(${buff})</div>`;
-                            return `<b>${base}</b> <div class="stat-buff-plus" style="visibility:hidden;">(+0)</div>`;
+                        const formatStat = (label, base, buff, idx) => {
+                            const inp = `<input type="text" inputmode="numeric" class="stat-edit" data-idx="${idx}" value="${base}" maxlength="7" autocomplete="off">`;
+                            let buffHtml = `<div class="stat-buff-plus" style="visibility:hidden;">(+0)</div>`;
+                            if (buff > 0) buffHtml = `<div class="stat-buff-plus">(+${buff})</div>`;
+                            if (buff < 0) buffHtml = `<div class="stat-buff-minus">(${buff})</div>`;
+                            return `<div style="display:flex; align-items:center;"><span>${label}</span></div><div style="display:flex; align-items:center;">${inp} ${buffHtml}</div>`;
                         };
 
                         let gradeHtml = '';
@@ -1002,6 +1181,7 @@
                             gradeHtml = `<span class="grade-badge">⭐ ${dragonGrade} 등급</span>`;
                         }
 
+                        // 1번 수정 반영: HP / ATK / DEF 세로 배치
                         html += `
                             <div class="group ${colors[groupNum-1]}">
                                 <div class="group-header">
@@ -1013,19 +1193,19 @@
                                     ${gradeHtml}
                                 </div>
                                 <div class="badges-container">
-                                    <span class="eval-badge">Eval: ${calculatedEval}</span>
+                                    <span class="eval-badge" id="evalBadge${groupNum}">Eval: ${calculatedEval}</span>
                                     <span class="badge-success">스탯 인식 완료</span>
                                 </div>
                                 
                                 <div class="stat-container">
-                                    <div class="stat-box stat-hp">HP${formatStat(base_hp, buff_hp)}</div>
-                                    <div class="stat-box stat-atk">ATK${formatStat(base_atk, buff_atk)}</div>
-                                    <div class="stat-box stat-def">DEF${formatStat(base_def, buff_def)}</div>
+                                    <div class="stat-box stat-hp">${formatStat('HP', base_hp, buff_hp, i)}</div>
+                                    <div class="stat-box stat-atk">${formatStat('ATK', base_atk, buff_atk, i+1)}</div>
+                                    <div class="stat-box stat-def">${formatStat('DEF', base_def, buff_def, i+2)}</div>
                                 </div>
                                 
                                 <div class="bival-box">
                                     <span class="bival-label">📊 비밸 (버프 적용):</span>
-                                    <span class="bival-score">${groupBival.toLocaleString()}</span>
+                                    <span class="bival-score" id="bivalScore${groupNum}">${groupBival.toLocaleString()}</span>
                                 </div>
                             </div>
                         `;
@@ -1033,19 +1213,26 @@
                     html += '</div>';
                     currentCalculatedBival = totalBival;
 
+                    // 스크린샷 이미지 버프/너프 감지 결과가 존재하면 주간 랭킹 카운터에 연결
+                    if (detectedBuffNerf.buffCount > 0 || detectedBuffNerf.nerfCount > 0) {
+                        currentTotalBuffCount = Math.max(currentTotalBuffCount, detectedBuffNerf.buffCount);
+                        currentTotalNerfCount = Math.max(currentTotalNerfCount, detectedBuffNerf.nerfCount);
+                    }
+
+                    // 2번 수정 반영: 이미지 위로 펼쳐지도록 배치 구조 수정
                     html += `
                         <div style="margin-top: 25px; text-align: center;">
-                            <button class="toggle-debug-btn" onclick="const wrapper = document.getElementById('debugImageWrapper'); wrapper.style.display = wrapper.style.display === 'none' ? 'block' : 'none'; this.innerText = wrapper.style.display === 'none' ? '스탯 확인용 이미지 표시하기 ▼' : '스탯 확인용 이미지 닫기 ▲';">스탯 확인용 이미지 표시하기 ▼</button>
-                            <div id="debugImageWrapper" style="display: none; margin-top: 15px;">
-                                <img src="${processedImgSrc}" style="max-width: 100%; border: 1px solid var(--bd); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                            <div id="debugImageWrapper" style="display: none; margin-bottom: 15px;">
+                                <img src="${originalCroppedImgSrc}" style="max-width: 100%; border: 1px solid var(--bd); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                             </div>
+                            <button class="toggle-debug-btn" onclick="const wrapper = document.getElementById('debugImageWrapper'); wrapper.style.display = wrapper.style.display === 'none' ? 'block' : 'none'; this.innerText = wrapper.style.display === 'none' ? '스탯 확인용 이미지 표시하기 ▲' : '스탯 확인용 이미지 닫기 ▼';">스탯 확인용 이미지 표시하기 ▲</button>
                         </div>
                     `;
 
                     html += `
                         <div class="total-bival-box">
                             🏆 이번 주 총합 비밸
-                            <span>${totalBival.toLocaleString()}</span>
+                            <span id="totalBivalSpan">${totalBival.toLocaleString()}</span>
                             <div class="submit-section">
                                 <input type="text" id="nicknameInput" placeholder="닉네임 입력 (최대 10자)" maxlength="10">
                                 <button id="submitScoreBtn" onclick="submitScoreToDB()">주간 랭킹에 기록 등록하기</button>
@@ -1053,16 +1240,25 @@
                         </div>
                     `;
                     parsedResults.innerHTML = html;
+                    parsedResults.querySelectorAll('.stat-edit').forEach(el => {
+                        el.addEventListener('input', () => {
+                            const cleaned = el.value.replace(/[^0-9]/g, '');
+                            if (cleaned !== el.value) el.value = cleaned;
+                            ocrStats[parseInt(el.dataset.idx, 10)] = cleaned === '' ? 0 : parseInt(cleaned, 10);
+                            recalcFromEdits();
+                        });
+                        el.addEventListener('focus', () => el.select());
+                    });
                 } else {
                     parsedResults.innerHTML = `
                         <div style="background: rgba(248, 113, 113, 0.15); color: #dc2626; border: 1px solid var(--red); padding:15px; border-radius:8px; text-align:center; font-weight:bold; margin-bottom: 20px;">
                             ❌ 스탯을 안정적으로 추출하지 못했습니다.<br>스크린샷이 덱 설정 화면 전체를 포함하는지 확인해 주세요.
                         </div>
                         <div style="text-align: center;">
-                            <button class="toggle-debug-btn" onclick="const wrapper = document.getElementById('debugImageWrapper'); wrapper.style.display = wrapper.style.display === 'none' ? 'block' : 'none'; this.innerText = wrapper.style.display === 'none' ? '스탯 확인용 이미지 표시하기 ▼' : '스탯 확인용 이미지 닫기 ▲';">스탯 확인용 이미지 표시하기 ▼</button>
-                            <div id="debugImageWrapper" style="display: none; margin-top: 15px;">
-                                <img src="${processedImgSrc}" style="max-width: 100%; border: 1px solid var(--bd); border-radius: 8px;">
+                            <div id="debugImageWrapper" style="display: none; margin-bottom: 15px;">
+                                <img src="${originalCroppedImgSrc}" style="max-width: 100%; border: 1px solid var(--bd); border-radius: 8px;">
                             </div>
+                            <button class="toggle-debug-btn" onclick="const wrapper = document.getElementById('debugImageWrapper'); wrapper.style.display = wrapper.style.display === 'none' ? 'block' : 'none'; this.innerText = wrapper.style.display === 'none' ? '스탯 확인용 이미지 표시하기 ▲' : '스탯 확인용 이미지 닫기 ▼';">스탯 확인용 이미지 표시하기 ▲</button>
                         </div>
                     `;
                     statusDiv.innerHTML = "인식 실패 ❌";
