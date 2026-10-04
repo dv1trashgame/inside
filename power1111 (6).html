@@ -1257,10 +1257,10 @@ function assignMarkerGroups(items, W, deck) {
                     const markerResult = await detectBuffNerfMarkers(imagePreview.src, lastDeckExtent);
                     currentTotalBuffCount = markerResult.buff;
                     currentTotalNerfCount = markerResult.nerf;
-                    statusDiv.textContent = 'ス탯 행 OCR 완료 — 원본과 결과를 확인하세요.'.replace('ス', '스');
+                    statusDiv.textContent = '계산 완료';
                     groupMeta = [];
                     ocrStats = statNumbers.slice();
-                    let html = '<div class="edit-hint">✏️ 인식된 스탯이 틀렸다면 숫자를 직접 수정하세요. 비밸이 즉시 다시 계산됩니다.</div><div class="groups-wrapper">';
+                    let html = '<div class="edit-hint">✏️ 인식된 스탯이 틀렸다면 수정하시오. 비밸이 즉시 다시 계산됩니다.</div><div class="groups-wrapper">';
                     const colors = ['group-1', 'group-2', 'group-3']; 
                     let totalBival = 0;
                     
@@ -1327,7 +1327,7 @@ function assignMarkerGroups(items, W, deck) {
                         const d = markerResult.detail;
                         html += `
                             <div class="marker-info">
-                                🔎 인식된 버프/너프 합계 (순위표 전송용):
+                                이번 주 버프/너프 합계:
                                 <span class="marker-up">▲ 버프 ${markerResult.buff}개</span> · <span class="marker-down">▼ 너프 ${markerResult.nerf}개</span>
                                 <span class="mi-sub">버프 T ${d.buffT} / E ${d.buffE} · 너프 T ${d.nerfT} / E ${d.nerfE}</span>
                             </div>`;
